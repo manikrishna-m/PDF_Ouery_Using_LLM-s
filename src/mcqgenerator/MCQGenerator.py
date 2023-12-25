@@ -13,7 +13,7 @@ from langchain.chains import SequentialChain
 
 load_dotenv()
 
-key = os.getenv("OPENAI_API_KEY")
+key = os.getenv("OPENAT_API_KEY")
 
 llm = ChatOpenAI(
     openai_api_key = key,
