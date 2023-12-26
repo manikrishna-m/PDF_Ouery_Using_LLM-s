@@ -1,7 +1,6 @@
 import os
 import json
 import traceback
-import pandas as pd
 import streamlit as st
 from dotenv import load_dotenv
 from src.mcqgenerator.logger import logging
@@ -9,19 +8,19 @@ from src.mcqgenerator.utils import read_file, get_table_data
 from src.mcqgenerator.MCQGenerator import generate_evaluate_chain
 from langchain.callbacks import get_openai_callback
 
+# Define a function to present the quiz to the user
 def present_quiz(questions):
     user_responses = []
     
     for index, question in enumerate(questions, start=1):
-        st.write(f"Question {index}: {question['MAQ']}")
+        st.title(f"Question {index}: {question['MAQ']}")
         options = question['Choices'].split(" || ")
         
         # Include the question index in the key
-        user_response = st.radio(f"Select an option for Question {index}:", options, key=f"radio_{index}")
+        user_response = st.radio(f"Select an option:", options, key=f"radio_{index}")
         user_responses.append(user_response)
     
     return user_responses
-
 
 with open('/Users/manikrishnamandepudi/Documents/NLP Projects/llm-pdf-query/Response.json', 'r') as file:
     RESPONSE_JSON = json.load(file)
@@ -64,20 +63,18 @@ with st.form("user_inputs"):
                     if quiz is not None:
                         table_data = get_table_data(quiz)
                         if table_data is not None:
-                            df = pd.DataFrame(table_data)
-                            df.index = df.index + 1
-                            st.table(df)
-
                             # Present the quiz to the user
                             st.title("Quiz Time!")
                             user_responses = present_quiz(table_data)
 
-                            # Evaluate user responses
-                            correct_responses = [question['Correct'] for question in table_data]
-                            user_score = sum([1 for user_resp, correct_resp in zip(user_responses, correct_responses) if user_resp == correct_resp])
+                            # Show submit button for evaluation
+                            if st.form_submit_button("Submit Answers"):
+                                # Evaluate user responses
+                                correct_responses = [question['Correct'] for question in table_data]
+                                user_score = sum([1 for user_resp, correct_resp in zip(user_responses, correct_responses) if user_resp == correct_resp])
 
-                            st.title(f"Your Score: {user_score}/{len(table_data)}")
-                            st.text_area(label="Reviews", value=response["review"])
+                                st.title(f"Your Score: {user_score}/{len(table_data)}")
+                                # Remove the reviews section
 
                         else:
                             st.error("Error in the table data")
