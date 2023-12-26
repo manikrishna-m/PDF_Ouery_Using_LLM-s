@@ -15,6 +15,15 @@ def read_file(file):
         except Exception as e:
             raise Exception("Error while reading PDF file")
         
+    elif file.name.endswith('.txt'):
+        try:
+            text = file.read()
+            return text
+        
+        except Exception as e:
+            raise Exception("Error while reading TXT file")
+
+
     else:
         raise Exception(
             "Unsupported file type. Only PDF files are supported"
